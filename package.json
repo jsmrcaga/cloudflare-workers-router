@@ -1,0 +1,15 @@
+{
+  "name": "@control/cloudflare-workers-router",
+  "version": "0.0.0",
+  "description": "A simple & lightweight router designed for cloudflare workers",
+  "main": "lib/router.js",
+  "scripts": {
+    "test": "mocha --recursive --exit ./test"
+  },
+  "author": "Jo Colina <jo@jocolina.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^4.3.6",
+    "mocha": "^9.2.1"
+  }
+}
