@@ -2,7 +2,7 @@
   "name": "@control/cloudflare-workers-router",
   "version": "0.0.0",
   "description": "A simple & lightweight router designed for cloudflare workers",
-  "main": "lib/router.js",
+  "main": "index.js",
   "scripts": {
     "test": "mocha --recursive --exit ./test"
   },
