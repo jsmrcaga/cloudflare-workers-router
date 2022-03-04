@@ -228,4 +228,34 @@ describe('App', () => {
 			done();
 		}).catch(e => done(e));
 	});
+
+	describe('Error handling', () => {
+		it('Should register an error handler and call it', done => {
+			const router = new Router();
+
+			router.get('/plep/:plop', () => {
+				throw new Error('Simulated error');
+			});
+
+			const app = new App(router);
+
+			app.error((err, request, params, event) => {
+				return new Response('test', {
+					status: 505
+				});
+			});
+
+			app.run({
+				request: {
+					url: 'https://google.com/plep/5',
+					method: 'GET'
+				}
+			}).then(result => {
+				expect(result).to.be.instanceof(Response);
+				expect(result.status).to.be.eql(505);
+				expect(result.body).to.be.eql('test');
+				done();
+			}).catch(e => done(e));
+		});
+	});
 });
