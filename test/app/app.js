@@ -113,7 +113,7 @@ describe('App', () => {
 				expect(response).to.be.instanceof(Response);
 				expect(response.status).to.be.eql(status);
 				expect(response.body).to.be.eql(body);
-				expect(response.headers['Content-Type']).to.be.eql(content_type);
+				expect(response.headers.get('Content-Type')).to.be.eql(content_type);
 				done();
 			}).catch(e => done(e));
 		});
@@ -131,6 +131,37 @@ describe('App', () => {
 			done();
 		}).catch(e => done(e));
 	});
+
+	for(const route of [
+		'/something/:name/something_else',
+		'/:name',
+		'/something/:name',
+	]){
+		it('Passes params correctly', done => {
+			const router = new Router();
+			router.get(route, (request, { name }) => {
+				return { name };
+			});
+
+			const app = new App(router);
+
+			app.run({
+				request: {
+					url: `https://google.com${route.replace(/:name/, 'test_string')}`,
+					method: 'GET'
+				}
+			}).then(result => {
+				expect(result).to.be.instanceof(Response);
+				expect(result.status).to.be.eql(200);
+				expect(result.body).to.be.a('string');
+				const data = JSON.parse(result.body);
+
+				expect(data).to.have.property('name');
+				expect(data.name).to.be.eql('test_string');
+				done();
+			}).catch(e => done(e));
+		});
+	}
 
 	it('Runs with pre processing', done => {
 		const router = new Router();

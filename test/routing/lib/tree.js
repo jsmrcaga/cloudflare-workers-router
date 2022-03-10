@@ -165,6 +165,41 @@ describe('RouterTree', () => {
 			expect(params.plep).to.be.eql('plip');
 		});
 
+		it('Should find a nested lookup route', () => {
+			const tree = new RouterTree();
+			const cb = () => {};
+			tree.register('any', '/one/:plep/two', cb);
+
+			const callbacks_and_params = [
+				'/one/123/two',
+				'/one/plep/two',
+				'/one/another-name/two'
+			].map(path => tree.find('get', path));
+
+			const callbacks = callbacks_and_params.map(({ callback }) => callback);
+			const callbacks_set = new Set(callbacks);
+			expect(callbacks_set.size).to.be.eql(1);
+			expect(Array.from(callbacks_set)[0]).to.be.eql(cb);
+
+			for(const { params } of callbacks_and_params) {
+				expect(params).to.have.property('plep');
+				expect(['123', 'plep', 'another-name'].includes(params.plep)).to.be.true;
+			}
+		});
+
+		it('Should find multiple lookup route', () => {
+			const tree = new RouterTree();
+			const cb = () => {};
+			tree.register('any', '/one/:name/two/:id', cb);
+
+			const { callback, params } = tree.find('get', '/one/test_name/two/test_id');
+			expect(callback).to.be.eql(cb);
+			expect(params).to.have.property('name');
+			expect(params).to.have.property('id');
+			expect(params.name).to.be.eql('test_name');
+			expect(params.id).to.be.eql('test_id');
+		});
+
 		it('Should find a regex route', () => {
 			const tree = new RouterTree();
 			const cb = () => {};
