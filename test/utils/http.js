@@ -14,6 +14,10 @@ class Headers {
 	set(name, value) {
 		this.headers[name.toLowerCase()] = value;	
 	}
+
+	entries() {
+		return Object.entries(this.headers);
+	}
 }
 
 class Request {
