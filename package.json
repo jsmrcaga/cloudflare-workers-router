@@ -10,7 +10,8 @@
   "license": "MIT",
   "devDependencies": {
     "chai": "^4.3.6",
-    "mocha": "^9.2.1"
+    "mocha": "^9.2.1",
+    "sinon": "^13.0.1"
   },
   "publishConfig": {
     "access": "public"
