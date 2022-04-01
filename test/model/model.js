@@ -155,5 +155,234 @@ describe('Models', () => {
 				done(e);
 			});
 		});
+
+		it('Should save a model to KV with metadata', done => {
+			const Model = require('../../lib/model');
+			Model.bind_kv(global.KV_MOCK);
+
+			class MyModel extends Model {
+				static id({ a }) {
+					return a;
+				}
+
+				constructor({ a, b }) {
+					super();
+					this.a = a;
+					this.b = b;
+				}
+
+				get metadata() {
+					return {
+						a: this.a,
+						sum: this.a + this.b
+					}
+				}
+			}
+
+			const my_model = new MyModel({ a: 5, b: 7 });
+
+			const save_stub = Sinon.stub(global.KV_MOCK, 'put').callsFake(() => Promise.resolve());
+
+			my_model.save().then(model => {
+				expect(model).to.be.eql(my_model);
+				expect(save_stub.calledOnce).to.be.true;
+				expect(save_stub.calledWith(
+					'5',
+					JSON.stringify({ a: 5, b: 7 }),
+					{ metadata: { a: 5, sum: 5 + 7 }}
+				)).to.be.true;
+
+				save_stub.restore();
+				done();
+			}).catch(e => {
+				save_stub.restore();
+				done(e);
+			});
+		});
+
+		it('Should save a model to KV with expiration', done => {
+			const Model = require('../../lib/model');
+			Model.bind_kv(global.KV_MOCK);
+
+			class MyModel extends Model {
+				static id({ a }) {
+					return a;
+				}
+
+				constructor({ a, b }) {
+					super();
+					this.a = a;
+					this.b = b;
+				}
+
+				get expiration() {
+					return 15;
+				}
+			}
+
+			const my_model = new MyModel({ a: 5, b: 7 });
+
+			const save_stub = Sinon.stub(global.KV_MOCK, 'put').callsFake(() => Promise.resolve());
+
+			my_model.save().then(model => {
+				expect(model).to.be.eql(my_model);
+				expect(save_stub.calledOnce).to.be.true;
+				expect(save_stub.calledWith(
+					'5',
+					JSON.stringify({ a: 5, b: 7 }),
+					{ expiration: 15 }
+				)).to.be.true;
+
+				save_stub.restore();
+				done();
+			}).catch(e => {
+				save_stub.restore();
+				done(e);
+			});
+		});
+
+		it('Should save a model to KV with expirationTtl', done => {
+			const Model = require('../../lib/model');
+			Model.bind_kv(global.KV_MOCK);
+
+			class MyModel extends Model {
+				static id({ a }) {
+					return a;
+				}
+
+				constructor({ a, b }) {
+					super();
+					this.a = a;
+					this.b = b;
+				}
+
+				get expirationTtl() {
+					return 156;
+				}
+			}
+
+			const my_model = new MyModel({ a: 5, b: 7 });
+
+			const save_stub = Sinon.stub(global.KV_MOCK, 'put').callsFake(() => Promise.resolve());
+
+			my_model.save().then(model => {
+				expect(model).to.be.eql(my_model);
+				expect(save_stub.calledOnce).to.be.true;
+				expect(save_stub.calledWith(
+					'5',
+					JSON.stringify({ a: 5, b: 7 }),
+					{ expirationTtl: 156 }
+				)).to.be.true;
+
+				save_stub.restore();
+				done();
+			}).catch(e => {
+				save_stub.restore();
+				done(e);
+			});
+		});
+
+		it('Should save a model to KV with expirationTtl and metadata', done => {
+			const Model = require('../../lib/model');
+			Model.bind_kv(global.KV_MOCK);
+
+			class MyModel extends Model {
+				static id({ a }) {
+					return a;
+				}
+
+				constructor({ a, b }) {
+					super();
+					this.a = a;
+					this.b = b;
+				}
+
+				get metadata() {
+					return {
+						s: this.a + this.b
+					};
+				}
+
+				get expirationTtl() {
+					return 156;
+				}
+			}
+
+			const my_model = new MyModel({ a: 5, b: 7 });
+
+			const save_stub = Sinon.stub(global.KV_MOCK, 'put').callsFake(() => Promise.resolve());
+
+			my_model.save().then(model => {
+				expect(model).to.be.eql(my_model);
+				expect(save_stub.calledOnce).to.be.true;
+				expect(save_stub.calledWith(
+					'5',
+					JSON.stringify({ a: 5, b: 7 }),
+					{ expirationTtl: 156, metadata: { s: 5 + 7 }}
+				)).to.be.true;
+
+				save_stub.restore();
+				done();
+			}).catch(e => {
+				save_stub.restore();
+				done(e);
+			});
+		});
+
+		it('Should throw when saving model to KV because expiration and expirationTtl', () => {
+			const Model = require('../../lib/model');
+			Model.bind_kv(global.KV_MOCK);
+
+			class MyModel extends Model {
+				static id({ a }) {
+					return a;
+				}
+
+				constructor({ a, b }) {
+					super();
+					this.a = a;
+					this.b = b;
+				}
+
+				get expiration() {
+					return 15;
+				}
+
+				get expirationTtl() {
+					return 156;
+				}
+			}
+
+			const my_model = new MyModel({ a: 5, b: 7 });
+			const save_stub = Sinon.stub(global.KV_MOCK, 'put').callsFake(() => Promise.resolve());
+			expect(() => my_model.save()).to.throw(TypeError, 'both expiration and expirationTtl');
+			save_stub.restore();
+		});
+
+		it('Should throw because expiration is not a number', () => {
+			const Model = require('../../lib/model');
+			Model.bind_kv(global.KV_MOCK);
+
+			class MyModel extends Model {
+				static id({ a }) {
+					return a;
+				}
+
+				constructor({ a, b }) {
+					super();
+					this.a = a;
+					this.b = b;
+				}
+
+				get expiration() {
+					return { plep: 5 };
+				}
+			}
+
+			const my_model = new MyModel({ a: 5, b: 7 });
+			const save_stub = Sinon.stub(global.KV_MOCK, 'put').callsFake(() => Promise.resolve());
+			expect(() => my_model.save()).to.throw(TypeError, 'must be integers');
+			save_stub.restore();
+		});
 	});
 });
